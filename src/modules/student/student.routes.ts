@@ -11,4 +11,28 @@ router.post(
   studentControllers.bookAdvertisement,
 );
 
+router.get(
+  "/student/bookings",
+  auth(UserRole.STUDENT),
+  studentControllers.getMyBookedSessions,
+);
+
+router.patch(
+  "/student/bookings/:sessionId/rating",
+  auth(UserRole.STUDENT),
+  studentControllers.rateSession,
+);
+
+router.get(
+  "/student/dashboard",
+  auth(UserRole.STUDENT),
+  studentControllers.getDashboardStats,
+);
+
+router.get(
+  "/student/profile",
+  auth(UserRole.STUDENT),
+  studentControllers.getProfile,
+);
+
 export default router;
