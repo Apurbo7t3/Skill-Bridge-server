@@ -42,8 +42,8 @@ model BoookedSessions {
     advertisment    Advertisement @relation(fields: [advertisment_id], references: [id])
 
     status BookedSessionStatus @default(RUNNING)
-    rating Int
-    review String
+    rating Int?
+    review String?
 }
 
 model Category {

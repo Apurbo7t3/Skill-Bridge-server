@@ -2,6 +2,8 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
+import { errorHandler } from "./middleware/errorHandler";
+import { notFoundHandler } from "./notFound";
 // import { notFound } from "./middlewares/not_found";
 // import globalErrorHandler from "./middlewares/global_error_handler";
 
@@ -22,7 +24,8 @@ app.use("/", (req: Request, res: Response) => {
   res.send("Hello  World");
 });
 
-// app.use(notFound);
-// app.use(globalErrorHandler);
+app.use(notFoundHandler);
+
+app.use(errorHandler);
 
 export default app;
