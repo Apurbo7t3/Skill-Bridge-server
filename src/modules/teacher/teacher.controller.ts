@@ -131,9 +131,59 @@ const completeBookedSession = async (req: Request, res: Response) => {
   }
 };
 
+const getDashboardStats = async (req: Request, res: Response) => {
+  try {
+    const teacherId = req.user?.id;
+    if (!teacherId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const stats = await teacherServices.getTeacherDashboardStatsAlt(teacherId);
+
+    res.status(200).json({
+      success: true,
+      data: stats,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getTeacherProfile = async (req: Request, res: Response) => {
+  try {
+    const teacherId = req.user?.id;
+    if (!teacherId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    const profile = await teacherServices.getTeacherProfile(teacherId);
+
+    res.status(200).json({
+      success: true,
+      data: profile,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export const teacherControllers = {
   createAdvertisement,
   getAdvertisement,
   getMyBookedSessions,
   completeBookedSession,
+  getTeacherProfile,
+  getDashboardStats,
 };

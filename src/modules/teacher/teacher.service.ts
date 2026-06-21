@@ -129,9 +129,115 @@ const completeBookedSession = async (sessionId: string, teacherId: string) => {
   }
 };
 
+const getTeacherDashboardStatsAlt = async (teacherId: string) => {
+  try {
+    const teacher = await prisma.user.findUnique({
+      where: { id: teacherId },
+      select: { id: true },
+    });
+    if (!teacher) {
+      throw new Error("Teacher not found");
+    }
+
+    const totalAdvertisements = await prisma.advertisement.count({
+      where: { teacher_id: teacherId },
+    });
+
+    const sessionCounts = await prisma.boookedSessions.groupBy({
+      by: ["status"],
+      where: { teacher_id: teacherId },
+      _count: { status: true },
+    });
+
+    const counts = { RUNNING: 0, COMPLETED: 0, CANCELED: 0 };
+    sessionCounts.forEach((item) => {
+      counts[item.status] = item._count.status;
+    });
+
+    // Fetch all completed sessions (without rating filter)
+    const completedSessions = await prisma.boookedSessions.findMany({
+      where: {
+        teacher_id: teacherId,
+        status: "COMPLETED",
+        // No rating filter here
+      },
+      select: {
+        rating: true,
+      },
+    });
+
+    // Filter out null ratings in JavaScript
+    const ratings = completedSessions
+      .map((s) => s.rating)
+      .filter((r): r is number => r !== null);
+
+    let averageRating = 0;
+    if (ratings.length > 0) {
+      const totalRating = ratings.reduce((sum, r) => sum + r, 0);
+      averageRating = Number((totalRating / ratings.length).toFixed(2));
+    }
+
+    return {
+      totalAdvertisements,
+      sessionCounts: counts,
+      averageRating,
+    };
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
+const getTeacherProfile = async (teacherId: string) => {
+  try {
+    const teacher = await prisma.user.findUnique({
+      where: { id: teacherId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+    if (!teacher) {
+      throw new Error("Teacher not found");
+    }
+
+    // Same approach: fetch all completed sessions
+    const completedSessions = await prisma.boookedSessions.findMany({
+      where: {
+        teacher_id: teacherId,
+        status: "COMPLETED",
+      },
+      select: { rating: true },
+    });
+
+    const ratings = completedSessions
+      .map((s) => s.rating)
+      .filter((r): r is number => r !== null);
+
+    let averageRating = 0;
+    if (ratings.length > 0) {
+      const totalRating = ratings.reduce((sum, r) => sum + r, 0);
+      averageRating = Number((totalRating / ratings.length).toFixed(2));
+    }
+
+    return {
+      ...teacher,
+      averageRating,
+    };
+  } catch (error: any) {
+    throw new Error(error.message);
+  }
+};
+
 export const teacherServices = {
   createAdvertisement,
   getAdvertisement,
   getTeacherBookedSessions,
   completeBookedSession,
+  getTeacherDashboardStatsAlt,
+  getTeacherProfile,
 };

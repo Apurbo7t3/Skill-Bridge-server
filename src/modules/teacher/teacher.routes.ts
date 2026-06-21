@@ -1,4 +1,3 @@
-// src/routes/teacherRoutes.ts
 import { Router } from "express";
 import { teacherControllers } from "./teacher.controller";
 import auth from "../../middleware/auth";
@@ -23,6 +22,18 @@ router.patch(
   "/teacher/sessions/:sessionId/complete",
   auth(UserRole.TEACHER),
   teacherControllers.completeBookedSession,
+);
+
+router.get(
+  "/teacher/dashboard",
+  auth(UserRole.TEACHER),
+  teacherControllers.getDashboardStats,
+);
+
+router.get(
+  "/teacher/profile",
+  auth(UserRole.TEACHER),
+  teacherControllers.getTeacherProfile,
 );
 
 export default router;
