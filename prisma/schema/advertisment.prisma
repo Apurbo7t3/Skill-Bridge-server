@@ -1,0 +1,16 @@
+model Advertisement {
+    id String @id @default(uuid())
+
+    teacher_id String
+    teacher    User   @relation(fields: [teacher_id], references: [id])
+
+    subject_id Int
+    subject    Category @relation(fields: [subject_id], references: [id], onDelete: NoAction)
+
+    description String
+    slot        String
+    price       Int
+
+    status          AdvertisementStatus @default(UNBOOKED)
+    boookedSessions BoookedSessions[]
+}

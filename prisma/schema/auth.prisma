@@ -1,60 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
-generator client {
-    provider = "prisma-client"
-    output   = "../generated/prisma"
-}
-
-datasource db {
-    provider = "postgresql"
-}
-
-model Advertisement {
-    id String @id @default(uuid())
-
-    teacher_id String
-    teacher    User   @relation(fields: [teacher_id], references: [id])
-
-    subject_id Int
-    subject    Category @relation(fields: [subject_id], references: [id], onDelete: NoAction)
-
-    description String
-    slot        String
-    price       Int
-
-    status          AdvertisementStatus @default(UNBOOKED)
-    boookedSessions BoookedSessions[]
-}
-
-model BoookedSessions {
-    id String @id @default(uuid())
-
-    teacher_id String
-    teacher    User   @relation("teacher relation", fields: [teacher_id], references: [id])
-
-    student_id String
-    student    User   @relation("student relation", fields: [student_id], references: [id])
-
-    advertisment_id String
-    advertisment    Advertisement @relation(fields: [advertisment_id], references: [id])
-
-    status BookedSessionStatus @default(RUNNING)
-    rating Int?
-    review String?
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-}
-
-model Category {
-    id             Int             @id @default(autoincrement())
-    name           String
-    advertisements Advertisement[]
-}
-
 model User {
     id               String            @id
     name             String
@@ -121,21 +64,4 @@ model Verification {
 
     @@index([identifier])
     @@map("verification")
-}
-
-enum UserRole {
-    ADMIN
-    TEACHER
-    STUDENT
-}
-
-enum AdvertisementStatus {
-    BOOKED
-    UNBOOKED
-}
-
-enum BookedSessionStatus {
-    COMPLETED
-    CANCELED
-    RUNNING
 }

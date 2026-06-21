@@ -1,0 +1,19 @@
+model BoookedSessions {
+    id String @id @default(uuid())
+
+    teacher_id String
+    teacher    User   @relation("teacher relation", fields: [teacher_id], references: [id])
+
+    student_id String
+    student    User   @relation("student relation", fields: [student_id], references: [id])
+
+    advertisment_id String
+    advertisment    Advertisement @relation(fields: [advertisment_id], references: [id])
+
+    status BookedSessionStatus @default(RUNNING)
+    rating Int?
+    review String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
