@@ -61,6 +61,7 @@ model User {
     image            String?
     createdAt        DateTime          @default(now())
     updatedAt        DateTime          @updatedAt
+    isBanned         Boolean           @default(false)
     sessions         Session[]
     accounts         Account[]
     advertisements   Advertisement[]
