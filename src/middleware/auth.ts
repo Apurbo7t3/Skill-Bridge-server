@@ -1,8 +1,21 @@
 import { NextFunction, Request, Response } from "express";
 import { auth as betterAuth } from "../lib/auth";
+
 export enum UserRole {
-  ADMIN = "ADMIN",
-  USER = "USER",
+  ADMIN,
+  TEACHER,
+  STUDENT,
+}
+
+export enum AdvertisementStatus {
+  BOOKED,
+  UNBOOKED,
+}
+
+export enum BookedSessionStatus {
+  COMPLETED,
+  CANCELED,
+  RUNNING,
 }
 
 declare global {
@@ -19,7 +32,7 @@ declare global {
   }
 }
 
-const auth = (...roles: UserRole[]) => {
+const auth = (...roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const session = await betterAuth.api.getSession({
@@ -32,12 +45,12 @@ const auth = (...roles: UserRole[]) => {
         });
       }
 
-      if (!session.user.emailVerified) {
-        return res.status(403).json({
-          success: false,
-          message: "Email verification required. Please verfiy your email!",
-        });
-      }
+      //   if (!session.user.emailVerified) {
+      //     return res.status(403).json({
+      //       success: false,
+      //       message: "Email verification required. Please verfiy your email!",
+      //     });
+      //   }
 
       req.user = {
         id: session.user.id,
@@ -47,7 +60,7 @@ const auth = (...roles: UserRole[]) => {
         emailVerified: session.user.emailVerified,
       };
 
-      if (roles.length && !roles.includes(req.user.role as UserRole)) {
+      if (roles.length && !roles.includes(req.user.role)) {
         return res.status(403).json({
           success: false,
           message:
