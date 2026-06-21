@@ -44,6 +44,9 @@ model BoookedSessions {
     status BookedSessionStatus @default(RUNNING)
     rating Int?
     review String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
 model Category {
