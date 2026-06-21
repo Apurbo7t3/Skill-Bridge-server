@@ -232,7 +232,119 @@ const getAdvertisementDetail = async (advertisementId: string) => {
   }
 };
 
+const getFeaturedTutors = async (limit: number = 10) => {
+  const sessions = await prisma.boookedSessions.groupBy({
+    by: ["teacher_id"],
+    where: {
+      status: "COMPLETED",
+      rating: { not: null },
+    },
+    _avg: { rating: true },
+    _count: { rating: true },
+    orderBy: {
+      _avg: { rating: "desc" },
+    },
+    take: limit,
+  });
+
+  const teacherIds = sessions.map((s) => s.teacher_id);
+  const teachers = await prisma.user.findMany({
+    where: { id: { in: teacherIds } },
+    select: {
+      id: true,
+      name: true,
+      image: true,
+      advertisements: {
+        select: {
+          subject: true,
+        },
+        distinct: ["subject_id"],
+      },
+    },
+  });
+
+  const result = sessions.map((session) => {
+    const teacher = teachers.find((t) => t.id === session.teacher_id);
+    return {
+      teacherId: session.teacher_id,
+      name: teacher?.name || "",
+      image: teacher?.image || null,
+      subjects: teacher?.advertisements.map((ad) => ad.subject) || [],
+      averageRating: Number(session._avg.rating?.toFixed(2) || 0),
+      totalReviews: session._count.rating,
+    };
+  });
+
+  return result;
+};
+
+const getTopRatedReviews = async (limit: number = 10) => {
+  const sessions = await prisma.boookedSessions.findMany({
+    where: {
+      status: "COMPLETED",
+      rating: { not: null },
+      review: { not: null },
+    },
+    select: {
+      rating: true,
+      review: true,
+      createdAt: true,
+      student: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+      teacher: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+      advertisment: {
+        select: {
+          subject: true,
+        },
+      },
+    },
+    orderBy: {
+      rating: "desc",
+    },
+    take: limit,
+  });
+
+  return sessions;
+};
+
+const getCategories = async () => {
+  const categories = await prisma.category.findMany({
+    select: {
+      id: true,
+      name: true,
+      _count: {
+        select: {
+          advertisements: true,
+        },
+      },
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+
+  return categories.map((cat) => ({
+    id: cat.id,
+    name: cat.name,
+    totalAdvertisements: cat._count.advertisements,
+  }));
+};
+
 export const publicServices = {
   browseAdvertisements,
   getAdvertisementDetail,
+  getFeaturedTutors,
+  getTopRatedReviews,
+  getCategories,
 };

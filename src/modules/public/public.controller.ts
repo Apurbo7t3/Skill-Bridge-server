@@ -89,7 +89,57 @@ const getAdvertisementDetail = async (req: Request, res: Response) => {
   }
 };
 
+const getFeaturedTutors = async (req: Request, res: Response) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 10;
+    const result = await publicServices.getFeaturedTutors(limit);
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getTopRatedReviews = async (req: Request, res: Response) => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 10;
+    const result = await publicServices.getTopRatedReviews(limit);
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getCategories = async (req: Request, res: Response) => {
+  try {
+    const result = await publicServices.getCategories();
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error: any) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
 export const publicControllers = {
   browseAdvertisements,
   getAdvertisementDetail,
+  getFeaturedTutors,
+  getTopRatedReviews,
+  getCategories,
 };
