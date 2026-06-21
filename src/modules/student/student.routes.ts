@@ -35,4 +35,4 @@ router.get(
   studentControllers.getProfile,
 );
 
-export default router;
+export const studentRoutes = router;

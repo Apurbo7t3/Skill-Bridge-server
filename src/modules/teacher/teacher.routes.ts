@@ -5,7 +5,6 @@ import { UserRole } from "../../../generated/prisma/enums";
 
 const router = Router();
 
-// All routes require TEACHER role
 router.post(
   "/advertisements",
   auth(UserRole.TEACHER),
@@ -36,4 +35,4 @@ router.get(
   teacherControllers.getTeacherProfile,
 );
 
-export default router;
+export const teacherRoutes = router;
